@@ -1,8 +1,37 @@
 ## Monorepo: Users Data Table Demo
 
+**⏱️ Development Time**: This challenge was completed in approximately 4-5 hours, including backend API development, frontend implementation, real-time features, and comprehensive documentation.
+
 This project contains:
 - Backend (Express, in-memory data): `apps/backend`
 - Frontend (Next.js 14): `apps/frontend`
+
+## 🚀 Quick Start with Docker
+
+### Option 1: Docker Compose (Recommended)
+Start both frontend and backend with a single command:
+
+```bash
+# Build and start all services
+docker-compose up --build
+
+# Or run in background
+docker-compose up -d --build
+
+# View logs
+docker-compose logs -f
+
+# Stop services
+docker-compose down
+```
+
+**Access the application:**
+- Frontend: http://localhost:3000
+- Backend API: http://localhost:3001
+- Postman Collection: `postman_collection.json`
+
+### Option 2: Manual Setup
+If you prefer to run services locally without Docker:
 
 ### 1) Start backend dev server
 Set the API base URL for the backend. Create `apps/backend/.env.` with:

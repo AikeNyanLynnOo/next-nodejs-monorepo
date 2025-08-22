@@ -5,6 +5,33 @@ Express.js backend with in-memory data store supporting users/orders, org chart/
 
 ## Endpoints
 
+Run this to check user table and  Organization File Explorer view
+```bash
+curl -X POST "http://localhost:3001/dev/seed?users=1000&orders=5000&products=100&breadth=5&depth=3"
+```
+
+Run these steps to check live tabl animation
+- Get quotes snapshot
+```bash
+curl "http://localhost:3001/api/quotes/snapshot?symbols=AAPL,MSFT,GOOG"
+```
+
+- Start quotes generator
+```bash
+curl -X POST "http://localhost:3001/dev/quotes/start?rate=20&symbols=AAPL,MSFT,GOOG,AMZN,META"
+```
+
+- Check if generator is running (should show current prices)
+```bash
+curl "http://localhost:3001/api/quotes/snapshot?symbols=AAPL,MSFT"
+```
+
+- Stop quotes generator
+```bash
+curl -X POST "http://localhost:3001/dev/quotes/stop"
+```
+
+
 ### Users & Orders
 
 #### POST /dev/seed
@@ -180,42 +207,26 @@ Response:
 }
 ```
 
-### WebSocket Streaming
-- WS endpoint: `ws://localhost:3001/ws/quotes`
-
-Protocol:
-- Client → Server: `{"type":"subscribe","symbols":["AAPL","MSFT"]}`
-- Server → Client (batched every ~50ms):
-```json
-{"type":"quotes","items":[{"symbol":"AAPL","price":184.25,"ts":"2025-08-22T13:10:25.456Z"}]}
-```
-- On subscribe ack:
-```json
-{"type":"subscribed","symbols":["AAPL","MSFT"]}
+### WebSocket Streaming (Runn these to see the live dashboard)
+- Get quotes snapshot
+```bash
+curl "http://localhost:3001/api/quotes/snapshot?symbols=AAPL,MSFT,GOOG"
 ```
 
-Heartbeat:
-- Server sends ws ping every 15s.
-- Client should respond with pong (most ws clients do this automatically).
-- Idle/errored sockets are closed.
-
-Backoff guidance:
-- On close/error, clients should retry with exponential backoff (e.g., 1s, 2s, 4s, max 30s) and jitter.
-
-Browser test:
-```js
-const ws = new WebSocket("ws://localhost:3001/ws/quotes");
-ws.onopen = () => ws.send(JSON.stringify({ type: "subscribe", symbols: ["AAPL","MSFT"] }));
-ws.onmessage = (e) => console.log(JSON.parse(e.data));
+- Start quotes generator
+```bash
+curl -X POST "http://localhost:3001/dev/quotes/start?rate=20&symbols=AAPL,MSFT,GOOG,AMZN,META"
 ```
 
-### Load Generator (Random Quotes)
-Start generator (dev only):
-- POST `/dev/quotes/start?rate=30&symbols=AAPL,MSFT,GOOG`
-- `rate`: aggregate updates per second (10–50 recommended)
+- Check if generator is running (should show current prices)
+```bash
+curl "http://localhost:3001/api/quotes/snapshot?symbols=AAPL,MSFT"
+```
 
-Stop generator:
-- POST `/dev/quotes/stop`
+- Stop quotes generator
+```bash
+curl -X POST "http://localhost:3001/dev/quotes/stop"
+```
 
 ### Performance Notes
 - Single in-process publisher batches updates every ~50ms and fans out only the symbols each client subscribed to.
