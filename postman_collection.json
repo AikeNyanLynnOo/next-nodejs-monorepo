@@ -1,0 +1,307 @@
+{
+  "info": {
+    "name": "Next-Node Monorepo API",
+    "description": "Complete API collection for the Next.js + Node.js monorepo backend",
+    "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+  },
+  "variable": [
+    {
+      "key": "baseUrl",
+      "value": "http://localhost:3001",
+      "type": "string"
+    }
+  ],
+  "item": [
+    {
+      "name": "Development & Seeding",
+      "item": [
+        {
+          "name": "Seed Users & Orders",
+          "request": {
+            "method": "POST",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/dev/seed?users=1000&orders=5000&products=100",
+              "host": ["{{baseUrl}}"],
+              "path": ["dev", "seed"],
+              "query": [
+                {
+                  "key": "users",
+                  "value": "1000",
+                  "description": "Number of users to generate"
+                },
+                {
+                  "key": "orders",
+                  "value": "5000",
+                  "description": "Number of orders to generate"
+                },
+                {
+                  "key": "products",
+                  "value": "100",
+                  "description": "Number of products to generate"
+                }
+              ]
+            },
+            "description": "Seed the database with test data. Resets on server restart."
+          }
+        },
+        {
+          "name": "Seed Org Chart Tree",
+          "request": {
+            "method": "POST",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/dev/seed?users=1000&orders=0&products=0&breadth=5&depth=3",
+              "host": ["{{baseUrl}}"],
+              "path": ["dev", "seed"],
+              "query": [
+                {
+                  "key": "users",
+                  "value": "1000",
+                  "description": "Number of users to generate"
+                },
+                {
+                  "key": "orders",
+                  "value": "0",
+                  "description": "No orders needed for org chart"
+                },
+                {
+                  "key": "products",
+                  "value": "0",
+                  "description": "No products needed for org chart"
+                },
+                {
+                  "key": "breadth",
+                  "value": "5",
+                  "description": "Number of children per node"
+                },
+                {
+                  "key": "depth",
+                  "value": "3",
+                  "description": "Depth of the tree"
+                }
+              ]
+            },
+            "description": "Seed the database with org chart tree structure."
+          }
+        },
+        {
+          "name": "Start Quotes Generator",
+          "request": {
+            "method": "POST",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/dev/quotes/start?rate=20&symbols=AAPL,MSFT,GOOG,AMZN,META,NVDA,TSLA,AMD,NFLX,INTC",
+              "host": ["{{baseUrl}}"],
+              "path": ["dev", "quotes", "start"],
+              "query": [
+                {
+                  "key": "rate",
+                  "value": "20",
+                  "description": "Updates per second (10-50 range)"
+                },
+                {
+                  "key": "symbols",
+                  "value": "AAPL,MSFT,GOOG,AMZN,META,NVDA,TSLA,AMD,NFLX,INTC",
+                  "description": "Comma-separated list of stock symbols"
+                }
+              ]
+            },
+            "description": "Start the real-time quotes generator for WebSocket testing."
+          }
+        },
+        {
+          "name": "Stop Quotes Generator",
+          "request": {
+            "method": "POST",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/dev/quotes/stop",
+              "host": ["{{baseUrl}}"],
+              "path": ["dev", "quotes", "stop"]
+            },
+            "description": "Stop the real-time quotes generator."
+          }
+        }
+      ]
+    },
+    {
+      "name": "Users API",
+      "item": [
+        {
+          "name": "Get Users (Paginated)",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/api/users?page=1&pageSize=50&search=&sortBy=orderTotal&sortDir=desc",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "users"],
+              "query": [
+                {
+                  "key": "page",
+                  "value": "1",
+                  "description": "Page number (1-based)"
+                },
+                {
+                  "key": "pageSize",
+                  "value": "50",
+                  "description": "Number of items per page (10-1000)"
+                },
+                {
+                  "key": "search",
+                  "value": "",
+                  "description": "Search term for name or email"
+                },
+                {
+                  "key": "sortBy",
+                  "value": "orderTotal",
+                  "description": "Sort field: id, name, email, orderTotal, orderCount, createdAt"
+                },
+                {
+                  "key": "sortDir",
+                  "value": "desc",
+                  "description": "Sort direction: asc, desc"
+                }
+              ]
+            },
+            "description": "Get paginated list of users with search and sorting."
+          }
+        },
+        {
+          "name": "Get User by ID",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/api/users/1",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "users", "1"]
+            },
+            "description": "Get a specific user by ID."
+          }
+        },
+        {
+          "name": "Get User Orders",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/api/users/1/orders?page=1&pageSize=50",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "users", "1", "orders"],
+              "query": [
+                {
+                  "key": "page",
+                  "value": "1",
+                  "description": "Page number (1-based)"
+                },
+                {
+                  "key": "pageSize",
+                  "value": "50",
+                  "description": "Number of items per page"
+                }
+              ]
+            },
+            "description": "Get orders for a specific user."
+          }
+        }
+      ]
+    },
+    {
+      "name": "Org Chart / File Explorer",
+      "item": [
+        {
+          "name": "Get Root Nodes",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/api/nodes/root",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "nodes", "root"]
+            },
+            "description": "Get top-level nodes (nodes with parentId = null)."
+          }
+        },
+        {
+          "name": "Get Node Children",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/api/nodes/1/children",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "nodes", "1", "children"]
+            },
+            "description": "Get direct children of a specific node."
+          }
+        },
+        {
+          "name": "Search Nodes",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/api/search?q=john&limit=100",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "search"],
+              "query": [
+                {
+                  "key": "q",
+                  "value": "john",
+                  "description": "Search query (searches node names)"
+                },
+                {
+                  "key": "limit",
+                  "value": "100",
+                  "description": "Maximum number of results (1-1000)"
+                }
+              ]
+            },
+            "description": "Search nodes by name and return with ancestor paths for auto-expansion."
+          }
+        }
+      ]
+    },
+    {
+      "name": "Real-time Quotes",
+      "item": [
+        {
+          "name": "Get Quotes Snapshot",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/api/quotes/snapshot?symbols=AAPL,MSFT,GOOG,AMZN,META",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "quotes", "snapshot"],
+              "query": [
+                {
+                  "key": "symbols",
+                  "value": "AAPL,MSFT,GOOG,AMZN,META",
+                  "description": "Comma-separated list of stock symbols"
+                }
+              ]
+            },
+            "description": "Get current prices for specified symbols."
+          }
+        },
+        {
+          "name": "WebSocket Connection",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/ws/quotes",
+              "host": ["{{baseUrl}}"],
+              "path": ["ws", "quotes"],
+              "protocol": "ws"
+            },
+            "description": "WebSocket endpoint for real-time quotes. Send subscription message: {\"type\":\"subscribe\",\"symbols\":[\"AAPL\",\"MSFT\"]}"
+          }
+        }
+      ]
+    }
+  ]
+}
