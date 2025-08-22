@@ -57,32 +57,29 @@ const TableRow = memo<RowProps>(({ index, style, data }) => {
         isEven ? "bg-white" : "bg-gray-25"
       }`}
     >
-      {data.columns.map((column) => {
-        console.log(column);
-        return (
-          <div
-            key={column.key}
-            className="flex items-center p-3 text-sm border-r border-gray-200 last:border-r-0 overflow-hidden"
-            style={{ width: column.width, minWidth: column.width }}
-          >
-            {column.key === "orderTotal" ? (
-              <span className="font-medium text-green-600">
-                {user[column.key]}
-              </span>
-            ) : column.key === "createdAt" ? (
-              <span className="text-gray-500">
-                {formatDate(user[column.key] as string)}
-              </span>
-            ) : column.key === "email" ? (
-              <span className="truncate" title={user[column.key] as string}>
-                {user[column.key]}
-              </span>
-            ) : (
-              <span>{user[column.key]}</span>
-            )}
-          </div>
-        );
-      })}
+      {data.columns.map((column) => (
+        <div
+          key={column.key}
+          className="flex items-center p-3 text-sm border-r border-gray-200 last:border-r-0 overflow-hidden"
+          style={{ width: column.width, minWidth: column.width }}
+        >
+          {column.key === "orderTotal" ? (
+            <span className="font-medium text-green-600">
+              {user[column.key]}
+            </span>
+          ) : column.key === "createdAt" ? (
+            <span className="text-gray-500">
+              {formatDate(user[column.key] as string)}
+            </span>
+          ) : column.key === "email" ? (
+            <span className="truncate" title={user[column.key] as string}>
+              {user[column.key]}
+            </span>
+          ) : (
+            <span>{user[column.key]}</span>
+          )}
+        </div>
+      ))}
     </div>
   );
 });

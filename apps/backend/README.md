@@ -1,7 +1,7 @@
 # Backend API Documentation
 
 ## Overview
-Express.js backend with in-memory data store supporting users/orders and org chart/file explorer functionality.
+Express.js backend with in-memory data store supporting users/orders, org chart/file explorer, and real-time quotes streaming.
 
 ## Endpoints
 
@@ -160,6 +160,67 @@ curl "http://localhost:3001/api/search?q=Engineering&limit=10"
   }
 ]
 ```
+
+## Quotes (Real-time)
+
+### Snapshot
+- GET `/api/quotes/snapshot?symbols=AAPL,MSFT,GOOG`
+- Returns last known price per symbol (or null if unknown)
+
+Example:
+```bash
+curl "http://localhost:3001/api/quotes/snapshot?symbols=AAPL,MSFT,GOOG"
+```
+Response:
+```json
+{
+  "AAPL": {"symbol":"AAPL","price":184.23,"ts":"2025-08-22T13:10:25.123Z"},
+  "MSFT": {"symbol":"MSFT","price":419.5,"ts":"2025-08-22T13:10:25.123Z"},
+  "GOOG": null
+}
+```
+
+### WebSocket Streaming
+- WS endpoint: `ws://localhost:3001/ws/quotes`
+
+Protocol:
+- Client → Server: `{"type":"subscribe","symbols":["AAPL","MSFT"]}`
+- Server → Client (batched every ~50ms):
+```json
+{"type":"quotes","items":[{"symbol":"AAPL","price":184.25,"ts":"2025-08-22T13:10:25.456Z"}]}
+```
+- On subscribe ack:
+```json
+{"type":"subscribed","symbols":["AAPL","MSFT"]}
+```
+
+Heartbeat:
+- Server sends ws ping every 15s.
+- Client should respond with pong (most ws clients do this automatically).
+- Idle/errored sockets are closed.
+
+Backoff guidance:
+- On close/error, clients should retry with exponential backoff (e.g., 1s, 2s, 4s, max 30s) and jitter.
+
+Browser test:
+```js
+const ws = new WebSocket("ws://localhost:3001/ws/quotes");
+ws.onopen = () => ws.send(JSON.stringify({ type: "subscribe", symbols: ["AAPL","MSFT"] }));
+ws.onmessage = (e) => console.log(JSON.parse(e.data));
+```
+
+### Load Generator (Random Quotes)
+Start generator (dev only):
+- POST `/dev/quotes/start?rate=30&symbols=AAPL,MSFT,GOOG`
+- `rate`: aggregate updates per second (10–50 recommended)
+
+Stop generator:
+- POST `/dev/quotes/stop`
+
+### Performance Notes
+- Single in-process publisher batches updates every ~50ms and fans out only the symbols each client subscribed to.
+- Non-blocking: store updates and WS sends are decoupled via batching.
+- Heartbeat runs independently to detect dead connections.
 
 ## Data Models
 

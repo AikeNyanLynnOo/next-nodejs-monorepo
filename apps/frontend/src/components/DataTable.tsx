@@ -99,7 +99,6 @@ export function DataTable() {
       }
 
       const result: ApiResponse = await response.json();
-      console.log("result>>", result);
 
       // Simulate network delay for demo (remove in production)
       await new Promise((resolve) => setTimeout(resolve, 100));
@@ -140,7 +139,8 @@ export function DataTable() {
     setTableState((prev) => {
       let next = { ...prev };
       if (Number.isFinite(pageParam) && pageParam > 0) next.page = pageParam;
-      if (Number.isFinite(pageSizeParam) && pageSizeParam > 0) next.pageSize = pageSizeParam;
+      if (Number.isFinite(pageSizeParam) && pageSizeParam > 0)
+        next.pageSize = pageSizeParam;
       if (filterParam) next.filter = filterParam;
       const allowedSortKeys: Array<keyof User> = [
         "id",
@@ -153,7 +153,8 @@ export function DataTable() {
       if (allowedSortKeys.includes(sortByParamRaw as keyof User)) {
         next.sortBy = sortByParamRaw as keyof User;
       }
-      if (sortDirParam === "asc" || sortDirParam === "desc") next.sortOrder = sortDirParam;
+      if (sortDirParam === "asc" || sortDirParam === "desc")
+        next.sortOrder = sortDirParam;
       return next;
     });
     // run only once on mount to hydrate from URL
@@ -166,16 +167,30 @@ export function DataTable() {
     const params = new URLSearchParams();
     params.set("page", String(tableState.page));
     params.set("pageSize", String(tableState.pageSize));
-    if (tableState.filter) params.set("search", tableState.filter); else params.delete("search");
-    if (tableState.sortBy) params.set("sortBy", String(tableState.sortBy)); else params.delete("sortBy");
-    if (tableState.sortBy) params.set("sortDir", tableState.sortOrder); else params.delete("sortDir");
+    if (tableState.filter) params.set("search", tableState.filter);
+    else params.delete("search");
+    if (tableState.sortBy) params.set("sortBy", String(tableState.sortBy));
+    else params.delete("sortBy");
+    if (tableState.sortBy) params.set("sortDir", tableState.sortOrder);
+    else params.delete("sortDir");
 
     const nextUrl = `${pathname}?${params.toString()}`;
-    const current = typeof window !== "undefined" ? window.location.pathname + window.location.search : "";
+    const current =
+      typeof window !== "undefined"
+        ? window.location.pathname + window.location.search
+        : "";
     if (current !== nextUrl) {
       router.replace(nextUrl, { scroll: false });
     }
-  }, [router, pathname, tableState.page, tableState.pageSize, tableState.filter, tableState.sortBy, tableState.sortOrder]);
+  }, [
+    router,
+    pathname,
+    tableState.page,
+    tableState.pageSize,
+    tableState.filter,
+    tableState.sortBy,
+    tableState.sortOrder,
+  ]);
 
   // Memoized handlers to prevent unnecessary re-renders
   const handleSort = useCallback((column: keyof User) => {
@@ -302,7 +317,10 @@ export function DataTable() {
       {/* Table */}
       <div className="border border-gray-200 rounded-lg overflow-x-auto max-w-fit">
         {/* Table Header */}
-        <div className="bg-gray-50 border-b border-gray-200" style={{ width: totalWidth }}>
+        <div
+          className="bg-gray-50 border-b border-gray-200"
+          style={{ width: totalWidth }}
+        >
           <div className="flex">
             {columns.map((column) => (
               <div
