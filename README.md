@@ -33,6 +33,10 @@ docker-compose down
 ### Option 2: Manual Setup
 If you prefer to run services locally without Docker:
 
+#### Environment Setup
+1. **Backend**: Copy `apps/backend/env.example` to `apps/backend/.env`
+2. **Frontend**: Copy `apps/frontend/env.example` to `apps/frontend/.env.local`
+
 ### 1) Start backend dev server
 Set the API base URL for the backend. Create `apps/backend/.env.` with:
 ```
