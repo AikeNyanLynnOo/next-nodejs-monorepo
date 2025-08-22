@@ -1,15 +1,7 @@
 import { Router } from "express";
-import { db, seedInMemory, UserRow } from "./db";
+import { db, seedInMemory, UserRow, generateTree, getNodePath } from "./db";
 
 export const router = Router();
-
-router.post("/dev/seed", async (req, res) => {
-  const users = Number((req.query.users as string) || 1000);
-  const orders = Number((req.query.orders as string) || 10000);
-  const products = Number((req.query.products as string) || 1000);
-  const counts = seedInMemory({ users, products, orders });
-  res.json(counts);
-});
 
 router.get("/api/users", async (req, res) => {
   const page = Math.max(1, Number(req.query.page || 1));
@@ -100,4 +92,50 @@ router.get("/api/users/:id/orders", async (req, res) => {
   const start = (page - 1) * pageSize;
   const items = all.slice(start, start + pageSize);
   res.json({ items, total, page, pageSize });
+});
+
+// Org Chart / File Explorer endpoints
+router.post("/dev/seed", async (req, res) => {
+  const users = Number((req.query.users as string) || 1000);
+  const orders = Number((req.query.orders as string) || 10000);
+  const products = Number((req.query.products as string) || 1000);
+  const breadth = Number((req.query.breadth as string) || 20);
+  const depth = Number((req.query.depth as string) || 10);
+
+  const counts = seedInMemory({ users, products, orders });
+  const treeCounts = generateTree(breadth, depth);
+
+  res.json({ ...counts, ...treeCounts });
+});
+
+router.get("/api/nodes/root", async (req, res) => {
+  const rootNodes = db.nodes.filter((node) => node.parentId === null);
+  res.json(rootNodes);
+});
+
+router.get("/api/nodes/:id/children", async (req, res) => {
+  const { id } = req.params;
+  const children = db.nodes.filter((node) => node.parentId === id);
+  res.json(children);
+});
+
+router.get("/api/search", async (req, res) => {
+  const query = (req.query.q as string) || "";
+  const limit = Math.min(100, Math.max(1, Number(req.query.limit || 100)));
+
+  if (!query.trim()) {
+    return res.json([]);
+  }
+
+  const lcQuery = query.toLowerCase();
+  const matchedNodes = db.nodes
+    .filter((node) => node.name.toLowerCase().includes(lcQuery))
+    .slice(0, limit)
+    .map((node) => ({
+      id: node.id,
+      name: node.name,
+      path: getNodePath(node.id),
+    }));
+
+  res.json(matchedNodes);
 });

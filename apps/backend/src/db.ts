@@ -3,10 +3,18 @@ export type User = { id: number; name: string; email: string; createdAt: string 
 export type Product = { id: number; name: string; price: number };
 export type Order = { id: number; userId: number; productId: number; amount: number; createdAt: string };
 
+export type Node = { 
+  id: string; 
+  parentId: string | null; 
+  name: string; 
+  hasChildren: boolean 
+};
+
 export const db = {
   users: [] as User[],
   products: [] as Product[],
   orders: [] as Order[],
+  nodes: [] as Node[],
 };
 
 // Deterministic PRNG (mulberry32)
@@ -41,6 +49,72 @@ export function seedInMemory({ users, products, orders }: { users: number; produ
     db.orders.push({ id: i + 1, userId, productId, amount, createdAt });
   }
   return { users: db.users.length, products: db.products.length, orders: db.orders.length };
+}
+
+// Tree generation for org chart/file explorer
+export function generateTree(breadth: number, depth: number): { nodes: number } {
+  const rng = mulberry32(123456789);
+  db.nodes.length = 0;
+  
+  // Prefer seeded user names; fallback to a small static list if empty
+  const userNames = db.users.length
+    ? db.users.map(u => u.name)
+    : [
+        'Alice Johnson', 'Bob Smith', 'Carol Williams', 'David Brown', 'Eva Davis',
+        'Frank Miller', 'Grace Wilson', 'Henry Moore', 'Ivy Taylor', 'Jack Anderson',
+        'Karen Thomas', 'Leo Jackson', 'Mia White', 'Noah Harris', 'Olivia Martin',
+        'Paul Thompson', 'Quinn Garcia', 'Ruby Martinez', 'Sam Robinson', 'Tina Clark'
+      ];
+  
+  function generateNode(parentId: string | null, currentDepth: number, nodeId: string): Node {
+    const name = userNames[Math.floor(rng() * userNames.length)];
+    const hasChildren = currentDepth < depth && Math.random() > 0.3; // 70% chance of having children
+    
+    return {
+      id: nodeId,
+      parentId,
+      name: `${name} ${nodeId}`,
+      hasChildren
+    };
+  }
+  
+  function generateLevel(parentId: string | null, currentDepth: number, prefix: string): void {
+    if (currentDepth > depth) return;
+    
+    const levelBreadth = Math.min(breadth, Math.floor(breadth * (1 - currentDepth / depth)) + 1);
+    
+    for (let i = 0; i < levelBreadth; i++) {
+      const nodeId = `${prefix}${i + 1}`;
+      const node = generateNode(parentId, currentDepth, nodeId);
+      db.nodes.push(node);
+      
+      if (node.hasChildren) {
+        generateLevel(nodeId, currentDepth + 1, `${nodeId}-`);
+      }
+    }
+  }
+  
+  // Generate root level
+  generateLevel(null, 1, 'root');
+  
+  return { nodes: db.nodes.length };
+}
+
+// Helper function to get node path (ancestors)
+export function getNodePath(nodeId: string): { id: string; name: string }[] {
+  const path: { id: string; name: string }[] = [];
+  let currentNode = db.nodes.find(n => n.id === nodeId);
+  
+  while (currentNode) {
+    path.unshift({ id: currentNode.id, name: currentNode.name });
+    if (currentNode.parentId) {
+      currentNode = db.nodes.find(n => n.id === currentNode!.parentId);
+    } else {
+      break;
+    }
+  }
+  
+  return path;
 }
 
 export type UserRow = {

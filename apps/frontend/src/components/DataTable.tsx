@@ -259,7 +259,7 @@ export function DataTable() {
 
   if (error) {
     return (
-      <div className="bg-white border border-gray-200 rounded-lg shadow-sm p-6">
+      <div className="bg-white border border-gray-200 p-6">
         <div className="flex items-start gap-3 p-4 bg-red-50 border border-red-200 rounded-lg">
           <AlertCircle className="h-5 w-5 text-red-500 mt-0.5" />
           <div className="flex-1">
@@ -277,7 +277,7 @@ export function DataTable() {
   }
 
   return (
-    <div className="bg-white border border-gray-200 rounded-lg shadow-sm p-6">
+    <div className="bg-white border border-gray-200 p-6">
       {/* Search and Controls */}
       <div className="flex items-center gap-4 mb-6">
         <div className="relative flex-1 max-w-sm">
