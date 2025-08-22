@@ -43,7 +43,7 @@ interface QuoteRowProps {
 // Memoized row component to avoid unnecessary re-renders
 const QuoteRow = React.memo<QuoteRowProps>(
   ({ symbol, quote, previousQuote }) => {
-    console.log(`QuoteRow ${symbol}:`, { quote, previousQuote });
+    // console.log(`QuoteRow ${symbol}:`, { quote, previousQuote });
     const priceChange =
       quote && previousQuote ? quote.price - previousQuote.price : 0;
     const priceChangePercent =
@@ -125,7 +125,6 @@ export function QuotesDashboard({
 
     // Apply updates every 10 frames
     if (frameCounter.current >= 10 && hasPendingUpdates.current) {
-      console.log("Applying batched updates:", pendingUpdates.current);
 
       // Store current quotes as previous before updating
       setQuotes((prev) => {
@@ -145,7 +144,6 @@ export function QuotesDashboard({
         // Update quotes with batched data
         Object.assign(newQuotes, pendingUpdates.current);
 
-        console.log("Updated quotes from batch:", newQuotes);
         return newQuotes;
       });
 
@@ -179,7 +177,7 @@ export function QuotesDashboard({
     const jitter = Math.random() * 1000; // Add up to 1s jitter
 
     reconnectTimeoutRef.current = setTimeout(() => {
-      console.log(`Reconnecting... attempt ${reconnectAttempts.current + 1}`);
+      // console.log(`Reconnecting... attempt ${reconnectAttempts.current + 1}`);
       connectWebSocket();
       reconnectAttempts.current++;
     }, backoffMs + jitter);
@@ -188,12 +186,12 @@ export function QuotesDashboard({
   // WebSocket connection
   const connectWebSocket = useCallback(() => {
     try {
-      console.log("Attempting to connect to WebSocket:", wsUrl);
+      // console.log("Attempting to connect to WebSocket:", wsUrl);
       const ws = new WebSocket(wsUrl);
       wsRef.current = ws;
 
       ws.onopen = () => {
-        console.log("WebSocket connected");
+        // console.log("WebSocket connected");
         setIsConnected(true);
         setConnectionError(null);
         reconnectAttempts.current = 0;
@@ -205,10 +203,8 @@ export function QuotesDashboard({
       ws.onmessage = (event) => {
         try {
           const data = JSON.parse(event.data);
-          console.log("WebSocket message:", data);
 
           if (data.type === "quotes" && data.items) {
-            console.log("Processing quotes for batching:", data.items);
 
             data.items.forEach((tick: QuoteTick) => {
               pendingUpdates.current[tick.symbol] = tick;
@@ -229,7 +225,7 @@ export function QuotesDashboard({
       };
 
       ws.onclose = (event) => {
-        console.log("WebSocket closed:", event.code, event.reason);
+        // console.log("WebSocket closed:", event.code, event.reason);
         setIsConnected(false);
         wsRef.current = null;
 
@@ -244,14 +240,10 @@ export function QuotesDashboard({
       };
 
       ws.onerror = (error) => {
-        console.log(
-          "WebSocket connection failed (expected in demo environment)"
-        );
         setConnectionError("Demo mode - WebSocket not available");
         startDemoMode();
       };
     } catch (error) {
-      console.log("WebSocket not available, starting demo mode");
       setConnectionError("Demo mode - WebSocket not available");
       startDemoMode();
     }
@@ -268,9 +260,8 @@ export function QuotesDashboard({
         const snapshot = await response.json();
         setQuotes(snapshot);
       }
-    } catch (error) {
-      console.log("Backend not available, using mock data for demo");
-      const mockQuotes: Record<string, QuoteTick> = {};
+          } catch (error) {
+        const mockQuotes: Record<string, QuoteTick> = {};
       symbols.forEach((symbol, index) => {
         mockQuotes[symbol] = {
           symbol,
@@ -283,7 +274,6 @@ export function QuotesDashboard({
   }, [wsUrl, symbols]);
 
   const startDemoMode = useCallback(() => {
-    console.log("Starting demo mode with simulated updates");
 
     const simulateUpdates = () => {
       // Simulate random price updates
@@ -326,7 +316,7 @@ export function QuotesDashboard({
       quote: quotes[symbol] || null,
       previousQuote: previousQuotes[symbol] || null,
     }));
-    console.log("Sorted quotes for rendering:", result);
+    // console.log("Sorted quotes for rendering:", result);
     return result;
   }, [symbols, quotes, previousQuotes]);
 
